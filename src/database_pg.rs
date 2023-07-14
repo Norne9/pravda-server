@@ -64,7 +64,7 @@ impl Database for DatabasePg {
         Ok(user)
     }
 
-    async fn get_users(&self, ids: Option<&Vec<i32>>) -> anyhow::Result<Vec<UserData>> {
+    async fn get_users(&self, ids: Option<&[i32]>) -> anyhow::Result<Vec<UserData>> {
         let users = match ids {
             None => {
                 sqlx::query_as!(UserData, r#"SELECT * FROM users"#)
@@ -72,13 +72,9 @@ impl Database for DatabasePg {
                     .await?
             }
             Some(ids) => {
-                sqlx::query_as!(
-                    UserData,
-                    r#"SELECT * FROM users WHERE id = ANY($1)"#,
-                    ids.as_slice()
-                )
-                .fetch_all(&self.pool)
-                .await?
+                sqlx::query_as!(UserData, r#"SELECT * FROM users WHERE id = ANY($1)"#, ids)
+                    .fetch_all(&self.pool)
+                    .await?
             }
         };
         Ok(users)

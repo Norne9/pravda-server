@@ -53,7 +53,7 @@ pub trait Database {
     // Users
     async fn add_user(&self, user: &UserData) -> anyhow::Result<UserData>;
     async fn get_user(&self, user_search: &UserSearch) -> anyhow::Result<UserData>;
-    async fn get_users(&self, ids: Option<&Vec<i32>>) -> anyhow::Result<Vec<UserData>>;
+    async fn get_users(&self, ids: Option<&[i32]>) -> anyhow::Result<Vec<UserData>>;
     async fn update_user(&self, user: &UserData) -> anyhow::Result<UserData>;
 
     // Schedule

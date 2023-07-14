@@ -12,3 +12,4 @@ anyhow = "1.0"
 sqlx = { version = "0.7", features = [ "runtime-tokio", "tls-rustls", "postgres", "macros" ] }
 tokio = { version = "1", features = ["full"] }
 pravda-protocol = { git = "https://github.com/Norne9/pravda-protocol.git" }
+async-trait = "0.1"

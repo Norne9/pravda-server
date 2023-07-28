@@ -1,3 +1,4 @@
+use crate::utils;
 use async_trait::async_trait;
 
 pub enum UserSearch {
@@ -52,7 +53,7 @@ pub struct SalaryData {
 pub trait Database {
     // Users
     async fn add_user(&self, user: &UserData) -> anyhow::Result<UserData>;
-    async fn get_user(&self, user_search: &UserSearch) -> anyhow::Result<UserData>;
+    async fn get_user(&self, user_search: &UserSearch) -> anyhow::Result<Option<UserData>>;
     async fn get_users(&self, ids: Option<&[i32]>) -> anyhow::Result<Vec<UserData>>;
     async fn update_user(&self, user: &UserData) -> anyhow::Result<UserData>;
 
@@ -70,4 +71,11 @@ pub trait Database {
 
     // Salary
     async fn get_salaries(&self, month: u8, year: u16) -> anyhow::Result<Vec<SalaryData>>;
+}
+
+impl UserData {
+    pub fn get_pwd_hash(&self, password: impl AsRef<str>) -> String {
+        let pwd = format!("{}#{}", password.as_ref(), self.pwd_salt);
+        utils::sha3(pwd)
+    }
 }

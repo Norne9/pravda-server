@@ -2,12 +2,13 @@ use crate::database::*;
 use async_trait::async_trait;
 use sqlx::postgres::{PgPool, PgPoolOptions};
 
-struct DatabasePg {
+#[derive(Clone)]
+pub struct DatabasePg {
     pool: PgPool,
 }
 
 impl DatabasePg {
-    async fn connect(database_url: impl AsRef<str>) -> anyhow::Result<Self> {
+    pub async fn connect(database_url: impl AsRef<str>) -> anyhow::Result<Self> {
         let db = PgPoolOptions::new()
             .max_connections(3)
             .connect(database_url.as_ref())
@@ -41,23 +42,23 @@ impl Database for DatabasePg {
         Ok(user)
     }
 
-    async fn get_user(&self, user_search: &UserSearch) -> anyhow::Result<UserData> {
+    async fn get_user(&self, user_search: &UserSearch) -> anyhow::Result<Option<UserData>> {
         let user = match user_search {
             UserSearch::Id(id) => {
                 sqlx::query_as!(UserData, r#"SELECT * FROM users WHERE id = $1"#, id)
-                    .fetch_one(&self.pool)
+                    .fetch_optional(&self.pool)
                     .await?
             }
 
             UserSearch::Login(login) => {
                 sqlx::query_as!(UserData, r#"SELECT * FROM users WHERE login = $1"#, login)
-                    .fetch_one(&self.pool)
+                    .fetch_optional(&self.pool)
                     .await?
             }
 
             UserSearch::Token(token) => {
                 sqlx::query_as!(UserData, r#"SELECT * FROM users WHERE token = $1"#, token)
-                    .fetch_one(&self.pool)
+                    .fetch_optional(&self.pool)
                     .await?
             }
         };
